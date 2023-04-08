@@ -38,11 +38,13 @@ body <- dashboardBody(
   fluidRow(
     tabBox(
       width = 12, side='left', height = 720,
-      id = "tabset_map", 
-      tabPanel('Default Palette', tabName='Default Palette',
-               leafletOutput("map_default",height=650)),
-      tabPanel("Custom Palette", tabName='Custom Palette',
-               leafletOutput("map_custom",height=650)),
+      id = "tabset_map",
+      #####old maps #####
+      # tabPanel('Default Palette', tabName='Default Palette',
+      #          leafletOutput("map_default",height=650)),
+      # tabPanel("Custom Palette", tabName='Custom Palette',
+      #          leafletOutput("map_custom",height=650)),
+      #####
       tabPanel("Advanced Custom Palette", tabName='Advanced Custom Palette',
                leafletOutput("map_advanced",height=650)),
       selected = 'Default Palette'
@@ -60,63 +62,66 @@ ui <- dashboardPage(
 #### Server ####
 server <- function(input, output, session) {
   
-  output$map_default <- renderLeaflet({
-    poly_state <- shapes[shapes@data$STATEFP == input$select_state,]
-    
-    poly_state@data <- poly_state@data %>%
-      mutate(WATER_LAND_RATIO = as.numeric(as.character(AWATER)) / as.numeric(as.character(ALAND)) * as.numeric(input$select_format),
-             content = paste0(NAME,': ',WATER_LAND_RATIO)) 
-    
-    poly_state %>%
-      leaflet() %>%
-      addTiles() %>%
-      addPolygons(data = poly_state,
-                  weight=1, opacity = 1.0,color = 'white',
-                  fillOpacity = 0.9, smoothFactor = 0.5,
-                  fillColor = ~colorBin('RdBu',WATER_LAND_RATIO)(WATER_LAND_RATIO),
-                  label = ~content) %>%
-      addLegend(
-        "topright",
-        pal = colorBin('RdBu', poly_state@data$WATER_LAND_RATIO),
-        values = poly_state@data$WATER_LAND_RATIO,
-        opacity =  0.9
-      )
-    
-  })
+  # old maps in server#####
+  # output$map_default <- renderLeaflet({
+  #   poly_state <- shapes[shapes@data$STATEFP == input$select_state,]
+  #   
+  #   poly_state@data <- poly_state@data %>%
+  #     mutate(WATER_LAND_RATIO = as.numeric(as.character(AWATER)) / as.numeric(as.character(ALAND)) * as.numeric(input$select_format),
+  #            content = paste0(NAME,': ',WATER_LAND_RATIO)) 
+  #   
+  #   poly_state %>%
+  #     leaflet() %>%
+  #     addTiles() %>%
+  #     addPolygons(data = poly_state,
+  #                 weight=1, opacity = 1.0,color = 'white',
+  #                 fillOpacity = 0.9, smoothFactor = 0.5,
+  #                 fillColor = ~colorBin('RdBu',WATER_LAND_RATIO)(WATER_LAND_RATIO),
+  #                 label = ~content) %>%
+  #     addLegend(
+  #       "topright",
+  #       pal = colorBin('RdBu', poly_state@data$WATER_LAND_RATIO),
+  #       values = poly_state@data$WATER_LAND_RATIO,
+  #       opacity =  0.9
+  #     )
+  #   
+  # })
+  # 
+  # output$map_custom <- renderLeaflet({
+  #   
+  #   poly_state <- shapes[shapes@data$STATEFP == input$select_state,]
+  #   
+  #   poly_state@data <- poly_state@data %>%
+  #     mutate(WATER_LAND_RATIO = as.numeric(as.character(AWATER)) / as.numeric(as.character(ALAND)) * as.numeric(input$select_format),
+  #            content = paste0(NAME,': ',WATER_LAND_RATIO)) 
+  #   
+  #   poly_state@data$WATER_LAND_RATIO <- poly_state@data$WATER_LAND_RATIO - as.numeric(input$select_format)
+  #   
+  #   minVal <- min(poly_state@data$WATER_LAND_RATIO)
+  #   maxVal <- max(poly_state@data$WATER_LAND_RATIO)
+  #   domain <- c(minVal,maxVal)
+  #   
+  #   colorPal <- c(colorRampPalette(colors = c("#b2182b", "#f7e9ea"), space = "Lab")(abs(minVal)),
+  #                 colorRampPalette(colors = c("#e6f2ff", "#2166ac"), space = "Lab")(maxVal))
+  #   
+  #   poly_state %>%
+  #     leaflet() %>%
+  #     addTiles() %>%
+  #     addPolygons(data = poly_state,
+  #                 weight=1,opacity = 1.0,color = 'white',
+  #                 fillOpacity = 0.9, smoothFactor = 0.5,
+  #                 fillColor = ~get('colorBin')(colorPal, 
+  #                                              domain)(WATER_LAND_RATIO),
+  #                 label = ~content) %>%
+  #     addLegend(
+  #       "topright",
+  #       pal = colorBin(colorPal, domain = domain+as.numeric(input$select_format)),
+  #       values = domain,
+  #       opacity =  0.9
+  #     )
+  # })
   
-  output$map_custom <- renderLeaflet({
-    
-    poly_state <- shapes[shapes@data$STATEFP == input$select_state,]
-    
-    poly_state@data <- poly_state@data %>%
-      mutate(WATER_LAND_RATIO = as.numeric(as.character(AWATER)) / as.numeric(as.character(ALAND)) * as.numeric(input$select_format),
-             content = paste0(NAME,': ',WATER_LAND_RATIO)) 
-    
-    poly_state@data$WATER_LAND_RATIO <- poly_state@data$WATER_LAND_RATIO - as.numeric(input$select_format)
-    
-    minVal <- min(poly_state@data$WATER_LAND_RATIO)
-    maxVal <- max(poly_state@data$WATER_LAND_RATIO)
-    domain <- c(minVal,maxVal)
-    
-    colorPal <- c(colorRampPalette(colors = c("#b2182b", "#f7e9ea"), space = "Lab")(abs(minVal)),
-                  colorRampPalette(colors = c("#e6f2ff", "#2166ac"), space = "Lab")(maxVal))
-    
-    poly_state %>%
-      leaflet() %>%
-      addTiles() %>%
-      addPolygons(data = poly_state,
-                  weight=1,opacity = 1.0,color = 'white',
-                  fillOpacity = 0.9, smoothFactor = 0.5,
-                  fillColor = ~get('colorBin')(colorPal, 
-                                               domain)(WATER_LAND_RATIO),
-                  label = ~content) %>%
-      addLegend(
-        "topright",
-        pal = colorBin(colorPal, domain = domain+as.numeric(input$select_format)),
-        values = domain,
-        opacity =  0.9
-      )
-  })
+  #####
   
   output$map_advanced <- renderLeaflet({
     poly_state <- shapes[shapes@data$STATEFP == input$select_state,]
@@ -125,6 +130,7 @@ server <- function(input, output, session) {
       mutate(WATER_LAND_RATIO = as.numeric(as.character(AWATER)) / as.numeric(as.character(ALAND)) * as.numeric(input$select_format),
              content = paste0(NAME,': ',WATER_LAND_RATIO)) 
     
+    #i don't understand why this is subtracting 1 or 100 based on input
     poly_state@data$WATER_LAND_RATIO <- poly_state@data$WATER_LAND_RATIO - as.numeric(input$select_format)
     
     
@@ -135,6 +141,7 @@ server <- function(input, output, session) {
     center <- as.numeric(input$select_format)
     interval <- ifelse((maxVal - minVal)>10,10,
                        ifelse((maxVal - minVal)>5,1,0.2))
+    #interval options is confusion
     
     color_bucket <- calculateBucket(minVal,maxVal,
                                     interval=interval,interval_options = seq(interval,500,interval),center=center,floor_at= -1 * as.numeric(input$select_format))

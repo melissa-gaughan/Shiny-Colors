@@ -1,5 +1,6 @@
 ## interval options need to be monotonically increasing
 ## either lower bound or upper bound needs to be further adjusted, here we adjust upper bound in list
+#MG interval options are set to 10-500, incrementing by 10
 calculateBucket <- function(min_val,max_val,max_bin=10,interval=10,interval_options=seq(10,500,10),center=100,floor_at=NULL,ceil_at=NULL){
   min_val_round <- plyr::round_any(min_val,interval,f=floor)
   max_val_round <- plyr::round_any(max_val,interval,f=ceiling)
@@ -67,7 +68,9 @@ calculateBucket <- function(min_val,max_val,max_bin=10,interval=10,interval_opti
                                                               plyr::round_any(breaks_adjusted_for_label[x]+center,interval)) else '')[-1]))
 }
 
-
+#what is color bucket? no default value. It's in the app actually. 
+# color_bucket <- calculateBucket(minVal,maxVal,
+#                                 interval=interval,interval_options = seq(interval,500,interval),center=center,floor_at= -1 * as.numeric(input$select_format))
 inferColor <- function(color_bucket,color_below='#e34a33',color_above='#31a354',color_center='white',interval=10,center=100){
   # if (center > 0){
   #   breaks <- breaks[breaks>=-center] # original value should be floored at 0
